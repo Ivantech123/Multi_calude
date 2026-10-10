@@ -11,6 +11,7 @@
 [![Build](https://img.shields.io/github/actions/workflow/status/Ivantech123/Multi_calude/release.yml?style=flat-square)](https://github.com/Ivantech123/Multi_calude/actions)
 ![Platforms](https://img.shields.io/badge/Windows%20·%20macOS%20·%20Linux-333?style=flat-square)
 [![License](https://img.shields.io/github/license/Ivantech123/Multi_calude?style=flat-square&color=555)](LICENSE)
+[![Telegram](https://img.shields.io/badge/Telegram-@IDEVOP-26A5E4?style=flat-square&logo=telegram&logoColor=white)](https://t.me/IDEVOP)
 
 [Установка](#установка) · [Возможности](#возможности) · [Управление](#управление) · [Как это устроено](#как-это-устроено) · [English](#english)
 
@@ -194,9 +195,13 @@ scripts\screenshots.ps1   # картинки для README из настояще
 
 Релиз для всех платформ собирает GitHub Actions по тегу: `git tag v0.1.1 && git push --tags`.
 
+## Связь
+
+Вопросы, идеи и баги — в Telegram [@IDEVOP](https://t.me/IDEVOP) или в [Issues](https://github.com/Ivantech123/Multi_calude/issues).
+
 ## English
 
-**Multi_calude** runs Claude Code with up to five of your own accounts. It gives you a Claude Code–style picker for the account and the session, shares history, memory, skills and settings between accounts, shows each account's rate limits in the menu and the status line, lets you continue the same conversation under another account with `/switch-account`, and on Windows adds a tray icon that tells you when a limit resets. Install with the commands above. The interface is in Russian.
+**Multi_calude** runs Claude Code with up to five of your own accounts. It gives you a Claude Code–style picker for the account and the session, shares history, memory, skills and settings between accounts, shows each account's rate limits in the menu and the status line, lets you continue the same conversation under another account with `/switch-account`, and on Windows adds a tray icon that tells you when a limit resets. Install with the commands above. The interface is in Russian. Contact: Telegram [@IDEVOP](https://t.me/IDEVOP).
 
 ---
 
