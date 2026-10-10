@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The Windows tray icon. .NET Framework 4.8 ships with Windows 10 and 11, so the exe stays small. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <AssemblyName>cli-tray</AssemblyName>
+    <RootNamespace>ClaudeAccounts</RootNamespace>
+    <Version>0.1.0</Version>
+    <Product>Multi_calude</Product>
+    <LangVersion>latest</LangVersion>
+    <DefineConstants>$(DefineConstants);TRAY</DefineConstants>
+    <NoWarn>CS0162</NoWarn>
+    <ApplicationIcon>..\..\assets\icon.ico</ApplicationIcon>
+    <DebugType>none</DebugType>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\shared\*.cs" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>

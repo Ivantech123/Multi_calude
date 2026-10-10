@@ -1,0 +1,98 @@
+name: Release
+
+# A tag like v0.1.0 builds every platform and publishes a GitHub release.
+# Run manually (Actions → Release → Run workflow) to only build and keep the artifacts.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unix:
+    strategy:
+      matrix:
+        include:
+          - { rid: linux-x64, os: ubuntu-latest }
+          - { rid: linux-arm64, os: ubuntu-latest }
+          # macOS binaries are built on macOS so the SDK can sign the Apple Silicon one.
+          - { rid: osx-x64, os: macos-latest }
+          - { rid: osx-arm64, os: macos-latest }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Version
+        shell: bash
+        run: |
+          v="${GITHUB_REF_NAME#v}"
+          [[ "$GITHUB_REF_TYPE" == "tag" ]] || v="0.0.0"
+          echo "VERSION=$v" >> "$GITHUB_ENV"
+      - name: Publish
+        run: dotnet publish src/cli/cli.csproj -c Release -r ${{ matrix.rid }} -p:Version=$VERSION -o out
+      - name: Package
+        run: |
+          chmod +x out/cli
+          cp README.md LICENSE out/
+          tar -czf multi_calude-${{ matrix.rid }}.tar.gz -C out cli README.md LICENSE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: multi_calude-${{ matrix.rid }}
+          path: multi_calude-${{ matrix.rid }}.tar.gz
+
+  windows:
+    strategy:
+      matrix:
+        arch: [x64, arm64]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Version
+        shell: bash
+        run: |
+          v="${GITHUB_REF_NAME#v}"
+          [[ "$GITHUB_REF_TYPE" == "tag" ]] || v="0.0.0"
+          echo "VERSION=$v" >> "$GITHUB_ENV"
+      - name: Publish
+        run: |
+          dotnet publish src/cli/cli.csproj -c Release -r win-${{ matrix.arch }} -p:Version=$env:VERSION -o package
+          dotnet build src/tray/tray.csproj -c Release -p:Version=$env:VERSION -o tray
+          Copy-Item tray/cli-tray.exe, tray/cli-tray.exe.config, README.md, LICENSE package/
+          Compress-Archive package/* multi_calude-win-${{ matrix.arch }}.zip
+      - name: Installer
+        if: matrix.arch == 'x64'
+        run: |
+          if (-not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) { choco install innosetup --no-progress -y }
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /DAppVersion=$env:VERSION /DSourceDir="$PWD\package" installer\windows\setup.iss
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          Move-Item dist\multi_calude-setup-x64.exe .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: multi_calude-win-${{ matrix.arch }}
+          path: |
+            multi_calude-win-${{ matrix.arch }}.zip
+            multi_calude-setup-x64.exe
+          if-no-files-found: error
+
+  release:
+    needs: [unix, windows]
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: files
+          merge-multiple: true
+      - name: Checksums
+        run: cd files && sha256sum * > SHA256SUMS.txt
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: files/*
+          generate_release_notes: true
